@@ -61,6 +61,24 @@ module Cats.UI {
         static COLLAPSED = "collapsed";
         static OPENED = "opened";
         private openFolders = [];
+        
+        private findOpenFolders(jq, result, prev) {
+            if (jq == null) {
+                jq = $(this.rootElem).children('ul').children('.opened');
+        	}
+        	if (result == null) {
+                result = [];
+        	}
+            if (prev == null) {
+                prev = '';
+            }
+            jq.each((index, node) => {
+                var txt = $(node).children("span").text();
+                result.push(prev + txt);
+                this.findOpenFolders($(node).children("ul").children(".opened"), result, prev + txt + '/');
+            });
+            return result;
+        }
 
         private rootElem: HTMLElement;
         public onselect: (value) => void;
