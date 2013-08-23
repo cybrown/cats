@@ -187,10 +187,7 @@ export class Tabbar extends AspectWidget {
                  optionElem.addEventListener('click', (evt: MouseEvent) => {
                      if (evt.which == 2 && this.ondelete) {
                          this.ondelete(option);
-                         evt.preventDefault();
-                         evt.stopImmediatePropagation();
                          evt.stopPropagation();
-                         return false;
                      }
                  });
                  optionElem.appendChild(closeButton);
