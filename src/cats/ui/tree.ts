@@ -62,22 +62,12 @@ module Cats.UI {
         static OPENED = "opened";
         private openFolders = [];
         
-        private findOpenFolders(jq, result, prev) {
-            if (jq == null) {
-                jq = $(this.rootElem).children('ul').children('.opened');
-        	}
-        	if (result == null) {
-                result = [];
-        	}
-            if (prev == null) {
-                prev = '';
-            }
-            jq.each((index, node) => {
-                var txt = $(node).children("span").text();
-                result.push(prev + txt);
-                this.findOpenFolders($(node).children("ul").children(".opened"), result, prev + txt + '/');
+        private findOpenFolders() {
+            var a = [];
+            $(this.rootElem).find('.opened').each((index: number, node: HTMLLIElement) => {
+                a.push(node.getAttribute('data-value'));
             });
-            return result;
+            return a;
         }
 
         private rootElem: HTMLElement;
@@ -105,9 +95,13 @@ module Cats.UI {
         }
  
         public refresh() {
+            var folders = this.findOpenFolders();
             this.rootElem.innerHTML = "";
             var elem = this.render(this.getValue(null, "children"));
             this.rootElem.appendChild(elem);
+            folders.forEach(path => {
+                this.handleClick($('li[data-value="' + path + '"]')[0]);
+            });
         }
 
         public static refreshElem(elem: HTMLElement) {
@@ -138,6 +132,7 @@ module Cats.UI {
                 li.appendChild(span);
 
                 // li.innerText = this.getValue(entry,"name");
+                li.setAttribute('data-value', encodeURIComponent(entry.path));
                 li["_value"] = entry;
 
                 if (this.getValue(entry, "isFolder")) {

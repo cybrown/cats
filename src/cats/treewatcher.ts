@@ -25,11 +25,11 @@ export class TreeWatcher {
         
     }
     
-    public hasDirectory (directory: string) {
+    private hasDirectory (directory: string) {
         return this.dirs.hasOwnProperty(directory);
     }
     
-    public addFile (filepath: string) {
+    private addFile (filepath: string) {
         if (this.files.indexOf(filepath) == -1) {
             this.files.push(filepath);
             if (!this.initial) {
@@ -39,7 +39,7 @@ export class TreeWatcher {
         }
     }
     
-    public removeFile (filepath: string) {
+    private removeFile (filepath: string) {
         var index = this.files.indexOf(filepath);
         if (index != -1) {
             if (index != (this.files.length - 1)) {
@@ -51,7 +51,12 @@ export class TreeWatcher {
         }
     }
     
-    public addDirectory (directory: string) {
+    public setDirectory (directory: string) {
+        this.clear();
+        this.addDirectory(directory);
+    }
+    
+    private addDirectory (directory: string) {
         if (!this.hasDirectory(directory)) {
             if (!this.initial) {
                 this.onDirectoryCreate(directory);
@@ -74,7 +79,7 @@ export class TreeWatcher {
         this.initial = false;
     }
     
-    public removeDirectory (directory: string): void {
+    private removeDirectory (directory: string): void {
         Object.keys(this.dirs).forEach(dir => {
             if ((dir == directory) || (dir.indexOf(directory + '/') == 0)) {
                 this.onDirectoryDelete(dir);
@@ -90,7 +95,7 @@ export class TreeWatcher {
         });
     }
     
-    public clear (): void {
+    private clear (): void {
         for (var dirpath in this.dirs) {
             if (this.dirs.hasOwnProperty(dirpath)) {
                 this.removeDirectory(dirpath);
@@ -98,20 +103,45 @@ export class TreeWatcher {
         }
     }
     
+    private removeFileOrDirectory(path: string): void {
+        this.removeDirectory(path);
+        this.removeFile(path);
+    }
+    
     private createWatcherForPath (dirpath: string): any {
         var watcher = fs.watch(dirpath);
         watcher.on('change', (event, filename) => {
-            var path = dirpath + '/' + filename;
-            var stats: any;
-            try {
-                stats = fs.statSync(path);
-                if (stats.isDirectory()) {
-                    this.addDirectory(path);
-                } else if (stats.isFile()) {
-                    this.addFile(path);
+            if (filename == null) {
+                try {
+                    fs.readdirSync(dirpath)
+                        .filter(path => {
+                            try {
+                                fs.statSync(dirpath + '/' + path);
+                                return true;
+                            } catch (e) {
+                                return false;
+                            }
+                            return false;
+                        })
+                        .forEach(path => {
+                            this.removeFileOrDirectory(dirpath + '/' + path);
+                        });
+                } catch (e) {
+                    this.removeFileOrDirectory(dirpath);
                 }
-            } catch (e) {
-                this.removeDirectory(path);
+            } else {
+                try {
+                    var path = dirpath + '/' + filename;
+                    var stats: any;
+                    stats = fs.statSync(path);
+                    if (stats.isDirectory()) {
+                        this.addDirectory(path);
+                    } else if (stats.isFile()) {
+                        this.addFile(path);
+                    }
+                } catch (e) {
+                    this.removeFileOrDirectory(path);
+                }
             }
         });
         watcher.on('error', (error) => {

@@ -85,6 +85,11 @@ module Cats {
    
    
     IDE = new Ide();     
+    
+    export function getIDE() {
+        return IDE;
+    }
+    
     // IDE.mainEditor = new TextEditor(IDE.editor);
     // mainEditor.on("activeSession",()=>{console.log("active session changed")})
     var prjName = determineProject();

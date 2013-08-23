@@ -30,7 +30,7 @@ module Cats {
         
         constructor(public path) {
             super();
-            this.addDirectory(path);
+            this.setDirectory(path);
         }
         
         public setTreeView(view: Cats.UI.TreeView) {
@@ -80,6 +80,9 @@ module Cats {
         public setTreeView(view: Cats.UI.TreeView): void {
             this._treeView = view;
             this.watcher.setTreeView(view);
+        }
+        public getTreeView(): Cats.UI.TreeView {
+            return this._treeView;
         }
 
         // The singleton TSWorker handler instance
