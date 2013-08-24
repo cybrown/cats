@@ -1,6 +1,6 @@
 module Cats {
     
-var fs = require('fs');
+//var fs = require('fs');
 var events = require('events');
 
 export class TreeWatcher {
@@ -63,16 +63,12 @@ export class TreeWatcher {
                 //this.emit('directory.create', directory);
             }
             this.dirs[directory] = this.createWatcherForPath(directory);
-            fs.readdirSync(directory)
-                .map(basename => {
-                    return directory + '/' + basename;
-                })
-                .forEach(filepath => {
-                    var s = fs.statSync(filepath);
-                    if (s.isDirectory()) {
-                        this.addDirectory(filepath);
-                    } else if (s.isFile()) {
-                        this.addFile(filepath);
+            OS.File.readDir(directory)
+                .forEach(fileinfo => {
+                    if (fileinfo.isDirectory) {
+                        this.addDirectory(fileinfo.fullName);
+                    } else if (fileinfo.isFile) {
+                        this.addFile(fileinfo.fullName);
                     }
                 });
         }
@@ -109,22 +105,23 @@ export class TreeWatcher {
     }
     
     private createWatcherForPath (dirpath: string): any {
-        var watcher = fs.watch(dirpath);
+        var watcher = OS.File.watch(dirpath);
         watcher.on('change', (event, filename) => {
             if (filename == null) {
                 try {
-                    fs.readdirSync(dirpath)
-                        .filter(path => {
+                    
+                    OS.File.readDir(dirpath)
+                        .filter(fileinfo => {
                             try {
-                                fs.statSync(dirpath + '/' + path);
+                                OS.File.stat(fileinfo.fullName);
                                 return true;
                             } catch (e) {
                                 return false;
                             }
                             return false;
                         })
-                        .forEach(path => {
-                            this.removeFileOrDirectory(dirpath + '/' + path);
+                        .forEach(fileinfo => {
+                            this.removeFileOrDirectory(fileinfo.fullName);
                         });
                 } catch (e) {
                     this.removeFileOrDirectory(dirpath);
@@ -133,7 +130,7 @@ export class TreeWatcher {
                 try {
                     var path = dirpath + '/' + filename;
                     var stats: any;
-                    stats = fs.statSync(path);
+                    stats = OS.File.stat(path);
                     if (stats.isDirectory()) {
                         this.addDirectory(path);
                     } else if (stats.isFile()) {
