@@ -297,7 +297,9 @@ module Cats {
                 IDE.mainEditor.hide();
                 if (this.hasPreviousSession()) {
                     var prevSession = this.previousSession();
-                    this.openSession(prevSession.name, prevSession.pos, prevSession.cb);
+                    setTimeout(() => {
+                        this.openSession(prevSession.name, prevSession.pos, prevSession.cb);
+                    }, 0);
                 }
             }
             
