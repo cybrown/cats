@@ -129,28 +129,28 @@ export class TreeWatcher {
         this.removeFile(path);
     }
     
-    private doubleFileChange: string[] = [];
-    private addToAlreadyChangedFile (filepath: string) {
-        
+    private alreadyFileChange: {[filepath: string]: number} = {};
+    private refreshChangedFiles() {
+        var now = new Date().getTime();
+        Object.keys(this.alreadyFileChange).forEach(filepath => {
+            if ((now - this.alreadyFileChange[filepath]) > 50) {
+                delete this.alreadyFileChange[filepath];
+            }
+        });
     }
-    
-
-    private alreadyFileChange: string[] = [];
     /**
      * The fs.watch api returns the change event twice when a file is saved, first
      * when the file is opened and truncated, then when the file is written.
      * This method handles this and returns true only once for a file path.
      */
     private handleDoubleFileChange (filepath: string): boolean {
-        var index = this.alreadyFileChange.indexOf(filepath);
-        if (index == -1) {
-            this.alreadyFileChange.push(filepath);
+        this.refreshChangedFiles();
+        var now = new Date().getTime();
+        if (!this.alreadyFileChange[filepath]) {
+            this.alreadyFileChange[filepath] = now;
             return true;
-        } else {
-            this.alreadyFileChange[index] = this.alreadyFileChange[this.alreadyFileChange.length - 1];
-            this.alreadyFileChange.pop();
-            return false;
         }
+        return false;
     }
     
     private createWatcherForPath (dirpath: string): any {
