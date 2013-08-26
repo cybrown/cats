@@ -61,6 +61,17 @@ module Cats {
                 console.log('FLDR DEL ' + path);
             }
         }
+        public onFileChange(filepath: any): void {
+            var session = Cats.getIDE().getSession(filepath);
+            if (session) {
+                if (confirm('File ' + filepath + ' modifed out of the editor, reload it ?')) {
+                    Cats.getIDE().getSession(filepath).setValue(OS.File.readTextFile(filepath));
+                    session.changed = false;
+                } else {
+                    session.changed = true;
+                }
+            }
+        }
         public onError(error: any): void {
             console.log('Watcher error');
             console.log(error);
@@ -83,6 +94,9 @@ module Cats {
         }
         public getTreeView(): Cats.UI.TreeView {
             return this._treeView;
+        }
+        public getWatcher(): TreeWatcher {
+            return this.watcher;
         }
 
         // The singleton TSWorker handler instance

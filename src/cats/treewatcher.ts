@@ -24,6 +24,25 @@ export class TreeWatcher {
     public onError(error: any): void {
         
     }
+    public onFileChange(path: string): void {
+        
+    }
+    
+    private preventedFileChange: string[] = [];
+    
+    public preventFileChange (filepath: string): void {
+        if (this.preventedFileChange.indexOf(filepath) == -1) {
+            this.preventedFileChange.push(filepath);
+        }
+    }
+    
+    private removePreventedFileChange (filepath: string): void {
+        var index = this.preventedFileChange.indexOf(filepath);
+        if (index != -1) {
+            this.preventedFileChange[index] = this.preventedFileChange[this.preventedFileChange.length - 1];
+            this.preventedFileChange.pop();
+        }
+    }
     
     private hasDirectory (directory: string) {
         return this.dirs.hasOwnProperty(directory);
@@ -31,10 +50,16 @@ export class TreeWatcher {
     
     private addFile (filepath: string) {
         if (this.files.indexOf(filepath) == -1) {
-            this.files.push(filepath);
+            this.files.push(OS.File.switchToForwardSlashes(filepath));
             if (!this.initial) {
                 this.onFileCreate(filepath);
                 //this.emit('file.create', filepath);
+            }
+        } else {
+            if (this.preventedFileChange.indexOf(filepath) != -1) {
+                this.removePreventedFileChange(filepath);
+            } else {
+                this.onFileChange(filepath);
             }
         }
     }
@@ -53,7 +78,7 @@ export class TreeWatcher {
     
     public setDirectory (directory: string) {
         this.clear();
-        this.addDirectory(directory);
+        this.addDirectory(OS.File.switchToForwardSlashes(directory));
     }
     
     private addDirectory (directory: string) {
@@ -62,7 +87,7 @@ export class TreeWatcher {
                 this.onDirectoryCreate(directory);
                 //this.emit('directory.create', directory);
             }
-            this.dirs[directory] = this.createWatcherForPath(directory);
+            this.dirs[OS.File.switchToForwardSlashes(directory)] = this.createWatcherForPath(directory);
             OS.File.readDir(directory)
                 .forEach(fileinfo => {
                     if (fileinfo.isDirectory) {
@@ -104,6 +129,30 @@ export class TreeWatcher {
         this.removeFile(path);
     }
     
+    private doubleFileChange: string[] = [];
+    private addToAlreadyChangedFile (filepath: string) {
+        
+    }
+    
+
+    private alreadyFileChange: string[] = [];
+    /**
+     * The fs.watch api returns the change event twice when a file is saved, first
+     * when the file is opened and truncated, then when the file is written.
+     * This method handles this and returns true only once for a file path.
+     */
+    private handleDoubleFileChange (filepath: string): boolean {
+        var index = this.alreadyFileChange.indexOf(filepath);
+        if (index == -1) {
+            this.alreadyFileChange.push(filepath);
+            return true;
+        } else {
+            this.alreadyFileChange[index] = this.alreadyFileChange[this.alreadyFileChange.length - 1];
+            this.alreadyFileChange.pop();
+            return false;
+        }
+    }
+    
     private createWatcherForPath (dirpath: string): any {
         var watcher = OS.File.watch(dirpath);
         watcher.on('change', (event, filename) => {
@@ -128,13 +177,15 @@ export class TreeWatcher {
                 }
             } else {
                 try {
-                    var path = dirpath + '/' + filename;
+                    var path = OS.File.switchToForwardSlashes(dirpath) + '/' + filename;
                     var stats: any;
                     stats = OS.File.stat(path);
                     if (stats.isDirectory()) {
                         this.addDirectory(path);
                     } else if (stats.isFile()) {
-                        this.addFile(path);
+                        if (this.handleDoubleFileChange(path)) {
+                            this.addFile(path);
+                        }
                     }
                 } catch (e) {
                     this.removeFileOrDirectory(path);
