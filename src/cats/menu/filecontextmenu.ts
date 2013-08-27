@@ -30,7 +30,6 @@ module Cats.Menu {
 
     function refresh() {
         Cats.getIDE().project.getTreeView().refresh();
-        //UI.TreeView.refreshElem(data.element);
     }
 
 

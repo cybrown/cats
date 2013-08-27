@@ -1,7 +1,4 @@
 module Cats {
-    
-//var fs = require('fs');
-var events = require('events');
 
 export class TreeWatcher {
     
@@ -53,7 +50,6 @@ export class TreeWatcher {
             this.files.push(OS.File.switchToForwardSlashes(filepath));
             if (!this.initial) {
                 this.onFileCreate(filepath);
-                //this.emit('file.create', filepath);
             }
         } else {
             if (this.preventedFileChange.indexOf(filepath) != -1) {
@@ -72,7 +68,6 @@ export class TreeWatcher {
             }
             this.files.pop();
             this.onFileDelete(filepath);
-            //this.emit('file.delete', filepath);
         }
     }
     
@@ -85,7 +80,6 @@ export class TreeWatcher {
         if (!this.hasDirectory(directory)) {
             if (!this.initial) {
                 this.onDirectoryCreate(directory);
-                //this.emit('directory.create', directory);
             }
             this.dirs[OS.File.switchToForwardSlashes(directory)] = this.createWatcherForPath(directory);
             OS.File.readDir(directory)
@@ -104,7 +98,6 @@ export class TreeWatcher {
         Object.keys(this.dirs).forEach(dir => {
             if ((dir == directory) || (dir.indexOf(directory + '/') == 0)) {
                 this.onDirectoryDelete(dir);
-                //this.emit('directory.delete', dir);
                 this.dirs[dir].close();
                 delete this.dirs[dir];
             }
@@ -194,7 +187,6 @@ export class TreeWatcher {
         });
         watcher.on('error', (error) => {
             this.onError(error);
-            //this.emit('error', error);
         });
         return watcher;
     }
