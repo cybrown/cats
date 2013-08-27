@@ -62,7 +62,7 @@ module Cats.Commands {
         var sessions = IDE.sessions;
         for (var i = 0; i < sessions.length; i++) {
             var session = sessions[i];
-            if (session.changed) Cats.getIDE().persistSession(session);
+            if (session.changed) IDE.persistSession(session);
         }
     }
         
@@ -84,7 +84,7 @@ module Cats.Commands {
      */     
     function saveFile() {
         var session = IDE.activeSession;
-        if (session) Cats.getIDE().persistSession(session);
+        if (session) IDE.persistSession(session);
     }
 
     export class FileCommands {

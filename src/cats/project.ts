@@ -58,10 +58,10 @@ module Cats {
             }
         }
         public onFileChange(filepath: any): void {
-            var session = Cats.getIDE().getSession(filepath);
+            var session = IDE.getSession(filepath);
             if (session) {
                 if (confirm('File ' + filepath + ' modifed out of the editor, reload it ?')) {
-                    Cats.getIDE().getSession(filepath).setValue(OS.File.readTextFile(filepath));
+                    IDE.getSession(filepath).setValue(OS.File.readTextFile(filepath));
                     session.changed = false;
                 } else {
                     session.changed = true;
