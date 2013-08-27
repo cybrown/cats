@@ -40,25 +40,21 @@ module Cats {
         public onFileCreate(path: string): void {
             if (this._treeView != null) {
                 this._treeView.refresh();
-                console.log('FILE ADD ' + path);
             }
         }
         public onFileDelete(path: string): void {
             if (this._treeView != null) {
                 this._treeView.refresh();
-                console.log('FILE DEL ' + path);
             }
         }
         public onDirectoryCreate(path: string): void {
             if (this._treeView != null) {
                 this._treeView.refresh();
-                console.log('FLDR ADD ' + path);
             }
         }
         public onDirectoryDelete(path: string): void {
             if (this._treeView != null) {
                 this._treeView.refresh();
-                console.log('FLDR DEL ' + path);
             }
         }
         public onFileChange(filepath: any): void {
