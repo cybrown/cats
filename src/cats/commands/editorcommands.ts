@@ -94,9 +94,11 @@ module Cats.Commands {
                { id: Cats.Commands.CMDS.edit_indent, label: "indent", icon: "shift_r_edit.gif" },
                { id: Cats.Commands.CMDS.edit_outdent, label: "outdent", icon: "shift_l_edit.gif" },
         
+        /*
                { id: Cats.Commands.CMDS.edit_cut, label: "cut", icon: "cut_edit.gif" },
                { id: Cats.Commands.CMDS.edit_copy, label: "copy", icon: "copy_edit.gif" },
                { id: Cats.Commands.CMDS.edit_paste, label: "paste", icon: "paste_edit.gif" },
+        */
         
                { id: Cats.Commands.CMDS.edit_find, label: "Find", cmd: "find" },
                { id: Cats.Commands.CMDS.edit_findNext, label: "Find Next", cmd: "findnext" },

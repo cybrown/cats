@@ -81,10 +81,12 @@ module Cats.Menu {
             // edit.append(this.editorCommand("undo"));
             edit.append(getCmd(CMDS.edit_undo));
             edit.append(getCmd(CMDS.edit_redo));
+            /*
             edit.append(new GUI.MenuItem({ type: "separator" }));
             edit.append(getCmd(CMDS.edit_cut));
             edit.append(getCmd(CMDS.edit_copy));
             edit.append(getCmd(CMDS.edit_paste));
+            */
             edit.append(new GUI.MenuItem({ type: "separator" }));
             edit.append(getCmd(CMDS.edit_find));
             edit.append(getCmd(CMDS.edit_findNext));
